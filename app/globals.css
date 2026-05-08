@@ -1,26 +1,73 @@
 @import "tailwindcss";
 
+@theme {
+  --color-background: #09090B;
+  --color-foreground: #E5E7EB;
+  
+  --color-card: #111827;
+  --color-card-foreground: #E5E7EB;
+  
+  --color-popover: #111827;
+  --color-popover-foreground: #E5E7EB;
+  
+  --color-primary: #8B5CF6;
+  --color-primary-foreground: #FFFFFF;
+  
+  --color-secondary: #1F2937;
+  --color-secondary-foreground: #E5E7EB;
+  
+  --color-muted: #1F2937;
+  --color-muted-foreground: #9CA3AF;
+  
+  --color-accent: #8B5CF6;
+  --color-accent-foreground: #FFFFFF;
+  
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+  
+  --color-border: #1F2937;
+  --color-input: #1F2937;
+  --color-ring: #8B5CF6;
+
+  --radius-lg: 1rem;
+  --radius-md: 0.75rem;
+  --radius-sm: 0.5rem;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #09090B;
+  --foreground: #E5E7EB;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/10 backdrop-blur-lg border border-white/10;
+  }
+  
+  .glass-card {
+    @apply bg-[#111827]/60 backdrop-blur-2xl border border-white/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)];
+  }
+
+  .grid-bg {
+    background-image: 
+      linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .neon-glow {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+  }
+  
+  .neon-border {
+    border: 1px solid rgba(139, 92, 246, 0.5);
+  }
 }

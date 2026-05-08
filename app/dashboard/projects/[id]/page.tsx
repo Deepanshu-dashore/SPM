@@ -163,7 +163,7 @@ export default function ProjectDetailsPage() {
           </div>
 
           {/* Add New Secret Block */}
-          <div className="p-8 space-y-6 bg-neutral-900/40 border-b-2 border-purple-500/20">
+          <div className="p-5 sm:p-8 space-y-6 bg-neutral-900/40 border-b-2 border-purple-500/20">
             <form onSubmit={handleAddSecret} className="space-y-6">
               <div className="grid grid-cols-1 gap-6">
                 <div className="space-y-2">
@@ -239,7 +239,7 @@ export default function ProjectDetailsPage() {
             </div>
           ) : (
             secrets.map((secret) => (
-              <div key={secret.id} className="p-8 space-y-6 hover:bg-white/[0.01] transition-colors">
+              <div key={secret.id} className="p-5 sm:p-8 space-y-6 hover:bg-white/[0.01] transition-colors">
                 <div className="space-y-2">
                   <label className="text-[11px] font-medium text-neutral-500">Key</label>
                   <div className="flex gap-3">

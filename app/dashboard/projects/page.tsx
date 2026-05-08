@@ -16,14 +16,14 @@ export default async function ProjectsPage() {
 
   return (
     <div className="space-y-10">
-      <div className="flex items-end justify-between border-b border-white/5 pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-white/5 pb-8 gap-6">
         <div>
           <h1 className="text-4xl font-bold text-white tracking-tight">Projects</h1>
           <p className="text-neutral-500 mt-2">Manage your secure environment vaults.</p>
         </div>
         <Link 
           href="/dashboard/projects/new" 
-          className="flex items-center gap-2 px-6 py-3 bg-white text-black hover:bg-neutral-200 text-sm font-bold rounded-2xl transition-all duration-300"
+          className="flex items-center justify-center gap-2 px-6 py-4 sm:py-3 bg-white text-black hover:bg-neutral-200 text-sm font-bold rounded-2xl transition-all duration-300 w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" />
           New Project

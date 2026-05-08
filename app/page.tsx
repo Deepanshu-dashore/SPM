@@ -1,14 +1,19 @@
+"use client"
+
 import Image from "next/image";
 import Link from "next/link";
-import { Shield, Zap, Key, Eye, Copy, Database, Globe, Lock } from "lucide-react";
+import { Shield, Zap, Key, Eye, Copy, Database, Globe, Lock, Menu, X } from "lucide-react";
+import { useState } from "react";
 
 export default function LandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-[#09090B] text-[#E5E7EB] selection:bg-purple-500/30">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-[#09090B]/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <Image 
               src="/logo.png" 
               alt="VaultX" 
@@ -23,7 +28,7 @@ export default function LandingPage() {
             <Link href="#security" className="hover:text-white transition-colors">Security</Link>
             <Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             <Link href="/login" className="text-sm font-medium hover:text-white transition-colors">
               Login
             </Link>
@@ -34,7 +39,37 @@ export default function LandingPage() {
               Get Started
             </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden p-2 text-gray-400 hover:text-white"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
+
+        {/* Mobile Navigation Dropdown */}
+        {isMenuOpen && (
+          <div className="md:hidden absolute top-16 left-0 right-0 bg-[#09090B] border-b border-white/5 p-6 space-y-6 animate-in slide-in-from-top duration-300">
+            <div className="flex flex-col gap-4 text-sm font-medium text-gray-400">
+              <Link href="#features" onClick={() => setIsMenuOpen(false)} className="hover:text-white transition-colors">Features</Link>
+              <Link href="#security" onClick={() => setIsMenuOpen(false)} className="hover:text-white transition-colors">Security</Link>
+              <Link href="#pricing" onClick={() => setIsMenuOpen(false)} className="hover:text-white transition-colors">Pricing</Link>
+            </div>
+            <div className="flex flex-col gap-4 pt-4 border-t border-white/5">
+              <Link href="/login" className="text-center text-sm font-medium hover:text-white transition-colors">
+                Login
+              </Link>
+              <Link 
+                href="/signup" 
+                className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white text-center text-sm font-bold rounded-xl transition-all"
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}

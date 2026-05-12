@@ -1,0 +1,32 @@
+import type { NextAuthConfig } from "next-auth"
+
+export const authConfig = {
+  session: { strategy: "jwt" },
+  pages: {
+    signIn: "/login",
+  },
+  callbacks: {
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user;
+      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard') || nextUrl.pathname.startsWith('/projects');
+      if (isOnDashboard) {
+        if (isLoggedIn) return true;
+        return false; // Redirect unauthenticated users to login page
+      }
+      return true;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+      }
+      return token
+    },
+    async session({ session, token }: { session: any; token: any }) {
+      if (session.user) {
+        session.user.id = token.id as string
+      }
+      return session
+    },
+  },
+  providers: [],
+} satisfies NextAuthConfig;

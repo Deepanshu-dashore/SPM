@@ -3,11 +3,11 @@ import Credentials from "next-auth/providers/credentials"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
 import clientPromise from "@/lib/mongodb"
 import { compareValue } from "@/lib/auth-utils"
-import { MongoClient } from "mongodb"
+import { authConfig } from "@/lib/auth.config"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: MongoDBAdapter(clientPromise),
-  session: { strategy: "jwt" },
   providers: [
     Credentials({
       name: "Vault Access",
@@ -54,21 +54,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-      }
-      return token
-    },
-    async session({ session, token }: { session: any; token: any }) {
-      if (session.user) {
-        session.user.id = token.id as string
-      }
-      return session
-    },
-  },
-  pages: {
-    signIn: "/login",
-  },
 })

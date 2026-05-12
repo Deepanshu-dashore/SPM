@@ -46,7 +46,7 @@ export async function createProject(name: string, description?: string) {
   return result.insertedId.toString()
 }
 
-export async function addSecret(projectId: string, masterKey: string, key: string, value: string) {
+export async function addSecret(projectId: string, masterKey: string, key: string, value: string, environment: string) {
   const session = await auth()
   if (!session?.user?.id) throw new Error("Unauthorized")
 
@@ -66,6 +66,7 @@ export async function addSecret(projectId: string, masterKey: string, key: strin
     encryptedValue: encryptedData,
     iv,
     tag,
+    environment,
     createdAt: new Date(),
   })
 
@@ -92,6 +93,100 @@ export async function getSecrets(projectId: string, masterKey: string) {
     id: s._id.toString(),
     key: s.key,
     value: decrypt(s.encryptedValue, s.iv, s.tag, vaultKey),
+    environment: s.environment || "production",
     createdAt: s.createdAt,
   }))
+}
+
+export async function updateSecret(secretId: string, masterKey: string, key: string, value: string, environment: string) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
+  const client = await clientPromise
+  const db = client.db()
+
+  // 1. Get the user's Vault Key
+  const vaultKey = await getVaultKey(session.user.id, masterKey)
+
+  // 2. Encrypt the new secret value
+  const { encryptedData, iv, tag } = encrypt(value, vaultKey)
+
+  // 3. Update the secret
+  const result = await db.collection("secrets").updateOne(
+    { _id: new ObjectId(secretId) },
+    { 
+      $set: { 
+        key, 
+        encryptedValue: encryptedData, 
+        iv, 
+        tag, 
+        environment,
+        updatedAt: new Date()
+      } 
+    }
+  )
+
+  const secret = await db.collection("secrets").findOne({ _id: new ObjectId(secretId) })
+  if (secret) {
+    revalidatePath(`/dashboard/projects/${secret.projectId}`)
+  }
+}
+
+export async function deleteSecret(secretId: string) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
+  const client = await clientPromise
+  const db = client.db()
+
+  const secret = await db.collection("secrets").findOne({ _id: new ObjectId(secretId) })
+  if (!secret) throw new Error("Secret not found")
+
+  await db.collection("secrets").deleteOne({ _id: new ObjectId(secretId) })
+
+  revalidatePath(`/dashboard/projects/${secret.projectId}`)
+}
+
+export async function importSecrets(projectId: string, masterKey: string, envContent: string, environment: string) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
+  const client = await clientPromise
+  const db = client.db()
+
+  // 1. Get the user's Vault Key
+  const vaultKey = await getVaultKey(session.user.id, masterKey)
+
+  // 2. Parse the .env content
+  const lines = envContent.split("\n")
+  const secretsToInsert = []
+
+  for (const line of lines) {
+    const trimmedLine = line.trim()
+    if (!trimmedLine || trimmedLine.startsWith("#")) continue
+
+    const [key, ...valueParts] = trimmedLine.split("=")
+    if (key && valueParts.length > 0) {
+      const rawValue = valueParts.join("=").replace(/^['"]|['"]$/g, "") // Remove quotes
+      
+      // Encrypt the value
+      const { encryptedData, iv, tag } = encrypt(rawValue, vaultKey)
+      
+      secretsToInsert.push({
+        projectId: new ObjectId(projectId),
+        key: key.trim(),
+        encryptedValue: encryptedData,
+        iv,
+        tag,
+        environment,
+        createdAt: new Date(),
+      })
+    }
+  }
+
+  if (secretsToInsert.length > 0) {
+    await db.collection("secrets").insertMany(secretsToInsert)
+  }
+
+  revalidatePath(`/dashboard/projects/${projectId}`)
 }

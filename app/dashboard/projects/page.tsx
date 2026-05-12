@@ -2,7 +2,18 @@ import { auth } from "@/lib/auth"
 import clientPromise from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 import Link from "next/link"
-import { FolderKanban, Plus, ArrowUpRight, Clock } from "lucide-react"
+import { 
+  FolderKanban, 
+  Plus, 
+  Search, 
+  Filter, 
+  MoreHorizontal, 
+  LayoutGrid, 
+  List, 
+  Clock,
+  Shield,
+  ArrowRight
+} from "lucide-react"
 
 export default async function ProjectsPage() {
   const session = await auth()
@@ -15,78 +26,146 @@ export default async function ProjectsPage() {
   }).sort({ createdAt: -1 }).toArray()
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-white/5 pb-8 gap-6">
+    <div className="space-y-8 max-w-7xl mx-auto">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-white tracking-tight">Projects</h1>
-          <p className="text-neutral-500 mt-2">Manage your secure environment vaults.</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+            Projects
+            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-white/10 text-neutral-300">
+              {projects.length}
+            </span>
+          </h1>
+          <p className="text-sm text-neutral-500 mt-1">Manage and organize your secure vaults.</p>
         </div>
-        <Link 
-          href="/dashboard/projects/new" 
-          className="flex items-center justify-center gap-2 px-6 py-4 sm:py-3 bg-white text-black hover:bg-neutral-200 text-sm font-bold rounded-2xl transition-all duration-300 w-full sm:w-auto"
-        >
-          <Plus className="w-4 h-4" />
-          New Project
-        </Link>
+        
+        <div className="flex items-center gap-3">
+          <Link 
+            href="/dashboard/projects/new" 
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-white text-black hover:bg-neutral-200 text-sm font-semibold rounded-lg transition-all duration-200 shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            New Project
+          </Link>
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Toolbar Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative group w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 group-focus-within:text-white transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Search projects..." 
+              className="w-full bg-neutral-900/50 border border-white/10 text-white text-sm rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all placeholder:text-neutral-600"
+            />
+          </div>
+          <button className="flex items-center gap-2 px-3 py-2 bg-neutral-900/50 border border-white/10 text-neutral-300 hover:text-white hover:bg-neutral-800 text-sm font-medium rounded-lg transition-all">
+            <Filter className="w-4 h-4" />
+            Filter
+          </button>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-1 p-1 bg-neutral-900/50 border border-white/10 rounded-lg">
+          <button className="p-1.5 bg-neutral-800 text-white rounded-md shadow-sm">
+            <List className="w-4 h-4" />
+          </button>
+          <button className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-800/50 rounded-md transition-all">
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Projects List View */}
+      <div className="bg-[#111111] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
         {projects.length === 0 ? (
-          <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
-            <FolderKanban className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">No projects yet</h3>
-            <p className="text-gray-500 mb-8">Start by creating your first secure vault.</p>
+          <div className="flex flex-col items-center justify-center py-24 text-center px-4">
+            <div className="w-16 h-16 bg-neutral-900 border border-white/5 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
+              <FolderKanban className="w-8 h-8 text-neutral-500" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">No projects found</h3>
+            <p className="text-sm text-neutral-500 mb-8 max-w-sm">
+              Get started by creating a new project vault to securely store your environment variables.
+            </p>
             <Link 
               href="/dashboard/projects/new" 
-              className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl transition-all border border-white/10"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white text-sm font-semibold rounded-lg transition-all border border-white/10 hover:border-white/20"
             >
+              <Plus className="w-4 h-4" />
               Create Project
             </Link>
           </div>
         ) : (
-          projects.map((project) => (
-            <Link 
-              key={project._id.toString()} 
-              href={`/dashboard/projects/${project._id}`}
-              className="group relative flex flex-col h-64 p-6 rounded-3xl bg-neutral-900/40 border border-white/5 hover:border-purple-500/30 hover:bg-neutral-800/50 transition-all duration-300 overflow-hidden"
-            >
-              {/* Background Accent */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-3xl group-hover:bg-purple-500/10 transition-colors duration-500" />
-              
-              <div className="relative flex-1">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-white/5 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-xl font-bold bg-gradient-to-br from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                      {project.name[0].toUpperCase()}
-                    </span>
+          <div className="w-full">
+            {/* Table Header */}
+            <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-white/10 bg-neutral-900/40 text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+              <div className="col-span-12 sm:col-span-5">Name</div>
+              <div className="hidden sm:block sm:col-span-3">Status</div>
+              <div className="hidden sm:block sm:col-span-3">Last Modified</div>
+              <div className="col-span-1 text-right"></div>
+            </div>
+            
+            {/* Table Body */}
+            <div className="divide-y divide-white/5">
+              {projects.map((project) => (
+                <Link 
+                  key={project._id.toString()} 
+                  href={`/dashboard/projects/${project._id}`}
+                  className="grid grid-cols-12 gap-4 px-6 py-4 items-center group hover:bg-white/[0.02] transition-colors duration-200 cursor-pointer"
+                >
+                  {/* Name & Icon */}
+                  <div className="col-span-10 sm:col-span-5 flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-neutral-800 to-neutral-900 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:border-purple-500/50 transition-colors shadow-sm">
+                      <span className="text-sm font-bold text-white">
+                        {project.name[0].toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-semibold text-white truncate group-hover:text-purple-400 transition-colors">
+                        {project.name}
+                      </h3>
+                      <p className="text-xs text-neutral-500 truncate mt-0.5">
+                        {project.description || "Secure environment vault"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="p-2 rounded-full bg-white/5 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">
-                    <ArrowUpRight className="w-4 h-4 text-purple-400" />
-                  </div>
-                </div>
 
-                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-purple-400 transition-colors">
-                  {project.name}
-                </h3>
-                <p className="text-sm text-neutral-400 line-clamp-2 leading-relaxed">
-                  {project.description || "Secure environment variables and secrets for this project."}
-                </p>
-              </div>
-
-              <div className="relative mt-auto pt-4 flex items-center justify-between border-t border-white/5">
-                <div className="flex items-center gap-2 text-[11px] font-medium text-neutral-500 uppercase tracking-wider">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{new Date(project.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                </div>
-                
-                <div className="flex -space-x-2">
-                  <div className="w-6 h-6 rounded-full border-2 border-neutral-900 bg-neutral-800 flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                  {/* Status */}
+                  <div className="hidden sm:flex sm:col-span-3 items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium w-fit">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Active
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-neutral-500 bg-neutral-900/50 px-2 py-1 rounded-md border border-white/5">
+                      <Shield className="w-3 h-3" />
+                      AES-256
+                    </div>
                   </div>
-                </div>
-              </div>
-            </Link>
-          ))
+
+                  {/* Last Modified */}
+                  <div className="hidden sm:flex sm:col-span-3 items-center gap-2 text-sm text-neutral-400">
+                    <Clock className="w-3.5 h-3.5 text-neutral-500" />
+                    {new Date(project.createdAt).toLocaleDateString(undefined, { 
+                      month: 'short', 
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="col-span-2 sm:col-span-1 flex items-center justify-end gap-2">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-neutral-400 hover:text-white rounded-md hover:bg-neutral-800">
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                    <div className="p-2 text-neutral-500 hover:text-white rounded-md hover:bg-neutral-800 transition-colors">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>
